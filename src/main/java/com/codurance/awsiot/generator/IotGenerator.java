@@ -1,9 +1,11 @@
 package com.codurance.awsiot.generator;
 
+import com.codurance.awsiot.KinesisClientGenerator;
 import com.codurance.awsiot.model.IoTData;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -20,8 +22,11 @@ public class IotGenerator {
         LivingRoom
     }
 
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
     private static final ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+
+    @Autowired
+    private KinesisClientGenerator kinesisClientGenerator;
 
     @Scheduled(fixedDelay = 5000)
     public void generate() throws JsonProcessingException {
@@ -30,6 +35,7 @@ public class IotGenerator {
         data.setTemperature(generateTemperature());
         data.setTxt(generateText());
         String json = ow.writeValueAsString(data);
+        kinesisClientGenerator.writeToKinesis(json, "aws-hackathon-iot");
     }
 
 
