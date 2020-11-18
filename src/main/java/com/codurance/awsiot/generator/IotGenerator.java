@@ -1,6 +1,9 @@
 package com.codurance.awsiot.generator;
 
 import com.codurance.awsiot.model.IoTData;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -9,20 +12,41 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Random;
-
 @Component
 public class IotGenerator {
+    enum Origin {
+        Bedroom,
+        Kitchen,
+        LivingRoom
+    }
 
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+    private static final ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
     @Scheduled(fixedDelay = 5000)
-    public void generate() {
+    public void generate() throws JsonProcessingException {
         IoTData data = new IoTData();
         data.setDate(generateDate());
         data.setTemperature(generateTemperature());
-        getClass();
-//        data.setTxt();
+        data.setTxt(generateText());
+        String json = ow.writeValueAsString(data);
     }
+
+
+    private String generateText() {
+        Random origin = new Random();
+         int originResult = origin.nextInt(3);
+         switch (originResult) {
+             case 0:
+                 return Origin.Bedroom.toString();
+             case 1:
+                 return Origin.Kitchen.toString();
+             case 2:
+                 return Origin.LivingRoom.toString();
+             default: throw new UnsupportedOperationException();
+         }
+    }
+
 
     private String generateTemperature(){
         StringBuilder temperatureBuilder = new StringBuilder();
@@ -63,7 +87,7 @@ public class IotGenerator {
             case 1: {
                 zonedUTC = zonedUTC.withZoneSameInstant(ZoneId.of("Asia/Tokyo"));
                 difference = "+9";
-            };break;
+            }break;
             case 2: {
                 zonedUTC = zonedUTC.withZoneSameInstant(ZoneId.of("America/Los_Angeles"));
                 difference = "-8";
