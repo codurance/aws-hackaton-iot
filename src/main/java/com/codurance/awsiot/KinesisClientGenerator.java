@@ -40,6 +40,8 @@ public class KinesisClientGenerator {
         PutRecordRequest putRecordRequest = new PutRecordRequest();
         putRecordRequest.setDeliveryStreamName(streamName);
 
+        data = data + "\n";
+
         Record record = new Record().withData(ByteBuffer.wrap(data.getBytes()));
         putRecordRequest.setRecord(record);
 
