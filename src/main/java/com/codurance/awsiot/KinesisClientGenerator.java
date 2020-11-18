@@ -44,6 +44,8 @@ public class KinesisClientGenerator {
         putRecordRequest.setRecord(record);
 
         amazonKinesisFirehose.putRecord(putRecordRequest);
+
+        LOG.info("Message Sent!!!");
     }
 
 }
